@@ -1,0 +1,8 @@
+{
+  "name": "Gestão Municipal Inteligente - Sausen Tech",
+  "description": "Uma plataforma completa para gestão de cidades inteligentes (Sausen Tech), integrando Portal do Cidadão, Administrativo, Servidor e Câmara Municipal com assistência de IA.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
