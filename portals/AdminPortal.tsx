@@ -16,7 +16,8 @@ import {
   UserCheck, DatabaseBackup, GitBranch, RadioTower, FileKey, FolderKanban, GlobeLock, Edit, Filter, Download, X, Save, Plus, Printer, Share2, MoreHorizontal, ChevronRight, Maximize2, Volume2, ListPlus, Target, Scale, FileBarChart, Hospital,
   Thermometer, Heart, UserMinus, PackageCheck, PackageMinus, PackagePlus, History, AlertTriangle, CalendarDays, LockKeyhole, FileDigit, Truck as TruckIcon, BadgeAlert, Trash,
   Paperclip, Layers, GitCommit, FileInput, UploadCloud, Wallet, Landmark as LandmarkIcon, FileWarning, Scroll, Umbrella, Siren as SirenIcon,
-  FileSignature, ShoppingBag, Archive, TrendingDown, Hammer, FileAxis3D, RefreshCcw
+  FileSignature, ShoppingBag, Archive, TrendingDown, Hammer, FileAxis3D, RefreshCcw, Gauge, Fuel, Wrench, Navigation, Car,
+  Tag, Box, RefreshCw, ClipboardCheck, ArrowLeftRight, Lock as LockIcon, Unlock, Check
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -30,6 +31,7 @@ interface UserData {
   role: string;
   status: string;
   department: string;
+  permissions: string[]; // IDs of allowed modules (names)
 }
 
 interface QueueItem {
@@ -66,13 +68,13 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
     { name: 'Dívida Ativa', icon: <AlertOctagon size={24} />, desc: 'Gestão de Débitos' },
     { name: 'Escrita Fiscal', icon: <BookOpen size={24} />, desc: 'Livros Fiscais' },
     { name: 'Fiscalização Fazendária', icon: <Search size={24} />, desc: 'Autuações e Vistorias' },
-    { name: 'Frotas', icon: <Truck size={24} />, desc: 'Gestão de Veículos' },
+    { name: 'Frotas', icon: <Truck size={24} />, desc: 'Gestão de Veículos', highlight: true },
     { name: 'IPTU', icon: <MapPin size={24} />, desc: 'Imposto Territorial' },
     { name: 'ISSQN', icon: <Percent size={24} />, desc: 'Imposto Sobre Serviços' },
     { name: 'Nota Fiscal Eletrônica', icon: <Receipt size={24} />, desc: 'Emissão e Consulta' },
     { name: 'Obras e Posturas', icon: <HardHat size={24} />, desc: 'Fiscalização Urbana' },
     { name: 'Ouvidoria', icon: <MessageCircle size={24} />, desc: 'Atendimento ao Cidadão' },
-    { name: 'Patrimônio', icon: <Landmark size={24} />, desc: 'Gestão de Bens' },
+    { name: 'Patrimônio', icon: <Landmark size={24} />, desc: 'Gestão de Bens', highlight: true },
     { name: 'Planejamento e Orçamento', icon: <IconPieChart size={24} />, desc: 'PPA, LDO e LOA', highlight: true },
     { name: 'Portal da Transparência', icon: <Eye size={24} />, desc: 'Prestação de Contas' },
     { name: 'Protocolo e Processo Digital', icon: <FileText size={24} />, desc: 'Tramitação de Documentos' },
@@ -219,6 +221,12 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
 
   // Purchasing and Bidding State
   const [purchasingTab, setPurchasingTab] = useState<'dashboard' | 'licitacoes' | 'compras' | 'contratos' | 'cadastros'>('dashboard');
+
+  // Fleet Management State
+  const [fleetTab, setFleetTab] = useState<'dashboard' | 'veiculos' | 'motoristas' | 'abastecimento' | 'manutencao' | 'trafego' | 'multas'>('dashboard');
+
+  // Patrimony Management State
+  const [patrimonyTab, setPatrimonyTab] = useState<'dashboard' | 'bens' | 'movimentacoes' | 'inventario' | 'relatorios'>('dashboard');
 
   // Planning and Budget State
   const [planningTab, setPlanningTab] = useState<'dashboard' | 'ppa' | 'ldo' | 'loa' | 'audiencias' | 'relatorios'>('dashboard');
@@ -787,17 +795,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
 
   // User Management State
   const [usersList, setUsersList] = useState<UserData[]>([
-    { id: 1, name: 'Ana Pereira', email: 'ana.pereira@sausen.tech', role: 'Administrador', status: 'Ativo', department: 'Tecnologia' },
-    { id: 2, name: 'Carlos Silva', email: 'carlos.silva@sausen.tech', role: 'Gerente', status: 'Ativo', department: 'Recursos Humanos' },
-    { id: 3, name: 'Beatriz Costa', email: 'beatriz.costa@sausen.tech', role: 'Operador', status: 'Inativo', department: 'Financeiro' },
-    { id: 4, name: 'João Santos', email: 'joao.santos@sausen.tech', role: 'Auditor', status: 'Ativo', department: 'Controladoria' },
-    { id: 5, name: 'Fernanda Lima', email: 'fernanda.lima@sausen.tech', role: 'Operador', status: 'Pendente', department: 'Saúde' },
+    { id: 1, name: 'Ana Pereira', email: 'ana.pereira@sausen.tech', role: 'Administrador', status: 'Ativo', department: 'Tecnologia', permissions: ['Patrimônio', 'Frotas', 'Recursos Humanos'] },
+    { id: 2, name: 'Carlos Silva', email: 'carlos.silva@sausen.tech', role: 'Gerente', status: 'Ativo', department: 'Recursos Humanos', permissions: ['Recursos Humanos', 'Folha de Pagamento'] },
+    { id: 3, name: 'Beatriz Costa', email: 'beatriz.costa@sausen.tech', role: 'Operador', status: 'Inativo', department: 'Financeiro', permissions: ['Contabilidade Pública', 'Tesouraria'] },
+    { id: 4, name: 'João Santos', email: 'joao.santos@sausen.tech', role: 'Auditor', status: 'Ativo', department: 'Controladoria', permissions: ['Controle Interno'] },
+    { id: 5, name: 'Fernanda Lima', email: 'fernanda.lima@sausen.tech', role: 'Operador', status: 'Pendente', department: 'Saúde', permissions: ['Agendamento e Cadastros', 'Farmácia'] },
   ]);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [showUserModal, setShowUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [tempUser, setTempUser] = useState<UserData>({
-    id: 0, name: '', email: '', role: 'Operador', status: 'Ativo', department: 'Administrativo'
+    id: 0, name: '', email: '', role: 'Operador', status: 'Ativo', department: 'Administrativo', permissions: []
   });
 
   // Generic Module Mock Data Generator
@@ -1030,7 +1038,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
       setTempUser(user);
     } else {
       setEditingUser(null);
-      setTempUser({ id: 0, name: '', email: '', role: 'Operador', status: 'Ativo', department: 'Administrativo' });
+      setTempUser({ id: 0, name: '', email: '', role: 'Operador', status: 'Ativo', department: 'Administrativo', permissions: [] });
     }
     setShowUserModal(true);
   };
@@ -1053,6 +1061,37 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
     }
   };
 
+  const handleTogglePermission = (moduleName: string) => {
+    setTempUser(prev => {
+      const current = prev.permissions || [];
+      if (current.includes(moduleName)) {
+        return { ...prev, permissions: current.filter(p => p !== moduleName) };
+      } else {
+        return { ...prev, permissions: [...current, moduleName] };
+      }
+    });
+  };
+
+  const handleToggleCategory = (categoryModules: any[]) => {
+     const allModuleNames = categoryModules.map(m => m.name);
+     setTempUser(prev => {
+        const current = prev.permissions || [];
+        const allSelected = allModuleNames.every(name => current.includes(name));
+        
+        if (allSelected) {
+           // Deselect all
+           return { ...prev, permissions: current.filter(p => !allModuleNames.includes(p)) };
+        } else {
+           // Select all (add missing ones)
+           const newPerms = [...current];
+           allModuleNames.forEach(name => {
+              if (!newPerms.includes(name)) newPerms.push(name);
+           });
+           return { ...prev, permissions: newPerms };
+        }
+     });
+  };
+
   const categories = [
     { id: 'admin', label: 'Administração Municipal', icon: <Building2 size={20} /> },
     { id: 'social', label: 'Assistência Social', icon: <HandHeart size={20} /> },
@@ -1062,6 +1101,17 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
     { id: 'health', label: 'Saúde Municipal', icon: <HeartPulse size={20} /> },
     { id: 'tech', label: 'Tecnologia', icon: <Monitor size={20} /> },
   ];
+
+  // Map category IDs to their module arrays for the modal loop
+  const moduleMap: Record<string, any[]> = {
+     admin: adminModules,
+     social: socialModules,
+     education: educationModules,
+     hospital: hospitalModules,
+     environment: environmentModules,
+     health: healthModules,
+     tech: technologyModules,
+  };
 
   const getActiveModules = () => {
     switch (activeCategory) {
@@ -1078,1237 +1128,977 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
 
   // --- SPECIFIC RENDERERS ---
 
-  const renderQueueSystem = () => (
-    <div className="animate-in fade-in duration-300 h-full flex flex-col">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-           <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
-             <ChevronLeft size={20} />
-           </button>
-           <div>
-             <h2 className="text-2xl font-bold text-slate-800">Sistema de Senhas</h2>
-             <p className="text-sm text-slate-500">Gestão de Atendimento e Filas</p>
-           </div>
+  const renderGenericModule = (moduleName: string) => {
+    const config = getModuleConfig(moduleName);
+    const themeColor = config.theme === 'blue' ? 'text-blue-600' : config.theme === 'red' ? 'text-red-600' : config.theme === 'green' ? 'text-emerald-600' : 'text-slate-600';
+    const btnColor = config.theme === 'blue' ? 'bg-blue-600 hover:bg-blue-700' : config.theme === 'red' ? 'bg-red-600 hover:bg-red-700' : 'bg-slate-800 hover:bg-slate-900';
+
+    return (
+      <div className="animate-in fade-in duration-300">
+        <div className="flex items-center gap-2 mb-6">
+          <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+            <ChevronLeft size={20} />
+          </button>
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800">{moduleName}</h2>
+            <p className="text-sm text-slate-500">Módulo Administrativo</p>
+          </div>
         </div>
-        <div className="flex gap-2">
-           <button 
-             onClick={() => setShowTVMode(!showTVMode)}
-             className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${showTVMode ? 'bg-red-600 text-white' : 'bg-slate-800 text-white'}`}
-           >
-             <Monitor size={18} /> {showTVMode ? 'Sair do Modo TV' : 'Modo TV (Painel)'}
-           </button>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+           {config.kpis.map((kpi, i) => (
+             <div key={i} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <div className="flex justify-between items-start mb-2">
+                   <p className="text-sm text-slate-500 font-medium">{kpi.title}</p>
+                   <div className="p-2 bg-slate-50 text-slate-600 rounded-lg">{kpi.icon}</div>
+                </div>
+                <h3 className={`text-2xl font-bold ${themeColor}`}>{kpi.value}</h3>
+                <p className="text-xs mt-1 text-slate-400">{kpi.change} vs mês anterior</p>
+             </div>
+           ))}
+        </div>
+
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <h3 className="font-bold text-slate-800">Registros</h3>
+              <div className="flex flex-wrap gap-2">
+                 {config.actions.map((action, i) => (
+                    <button key={i} className={`px-4 py-2 rounded-lg text-sm font-medium ${i===0 ? `${btnColor} text-white` : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                       {action}
+                    </button>
+                 ))}
+              </div>
+           </div>
+           <div className="overflow-x-auto">
+             <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 text-slate-600">
+                   <tr>
+                      {config.tableHeaders.map((h, i) => <th key={i} className="p-3">{h}</th>)}
+                   </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                   {config.tableData.map((row, i) => (
+                      <tr key={i} className="hover:bg-slate-50">
+                         <td className="p-3 font-medium">{row.c1}</td>
+                         <td className="p-3">{row.c2}</td>
+                         <td className="p-3">{row.c3}</td>
+                         <td className="p-3">{row.c4}</td>
+                         <td className="p-3">{row.c5}</td>
+                      </tr>
+                   ))}
+                </tbody>
+             </table>
+           </div>
         </div>
       </div>
+    );
+  }
 
-      {showTVMode ? (
-        <div className="flex-1 bg-slate-900 rounded-2xl overflow-hidden flex flex-col relative p-8 text-white">
-           <div className="flex-1 flex items-center justify-center">
-              <div className="text-center animate-pulse">
-                 <p className="text-4xl text-slate-400 mb-4 font-light">SENHA ATUAL</p>
-                 <h1 className="text-[12rem] font-bold leading-none tracking-tighter text-white">{currentTicket.number}</h1>
-                 <div className="mt-8 flex justify-center gap-12">
-                    <div>
-                       <p className="text-2xl text-slate-400">GUICHÊ</p>
-                       <p className="text-6xl font-bold text-yellow-400">{currentTicket.desk}</p>
-                    </div>
-                    <div>
-                       <p className="text-2xl text-slate-400">TIPO</p>
-                       <p className="text-6xl font-bold text-cyan-400">{currentTicket.type}</p>
-                    </div>
-                 </div>
-              </div>
-           </div>
-           <div className="h-32 bg-slate-800 rounded-xl flex items-center px-8 gap-8 overflow-x-auto">
-              <span className="text-xl font-bold text-slate-400 whitespace-nowrap">ÚLTIMAS CHAMADAS:</span>
-              {queueHistory.map((h, i) => (
-                 <div key={i} className="flex flex-col items-center px-6 border-l border-slate-700">
-                    <span className="text-3xl font-bold text-white">{h.number}</span>
-                    <span className="text-sm text-slate-400">Guichê {h.desk}</span>
-                 </div>
-              ))}
-           </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-           {/* Current Attendance */}
-           <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center">
-                 <p className="text-sm text-slate-500 font-bold uppercase tracking-wider mb-2">Em Atendimento</p>
-                 <div className="flex justify-center items-center gap-8 mb-8">
-                    <div className="text-right">
-                       <h2 className="text-7xl font-bold text-slate-800">{currentTicket.number}</h2>
-                       <p className="text-slate-500 mt-2">{currentTicket.type}</p>
-                    </div>
-                    <div className="h-20 w-px bg-slate-200"></div>
-                    <div className="text-left">
-                       <h3 className="text-4xl font-bold text-blue-600">Guichê {currentTicket.desk}</h3>
-                       <p className="text-emerald-600 font-medium mt-2 flex items-center gap-1"><Clock size={16} /> 00:00</p>
-                    </div>
-                 </div>
-                 
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <button onClick={handleCallNext} className="py-4 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md flex flex-col items-center gap-2">
-                       <Megaphone size={24} /> Chamar Próximo
-                    </button>
-                    <button onClick={handleRepeatCall} className="py-4 bg-amber-500 text-white rounded-xl font-bold hover:bg-amber-600 shadow-md flex flex-col items-center gap-2">
-                       <Volume2 size={24} /> Chamar Novamente
-                    </button>
-                    <button onClick={handleFinish} className="py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 shadow-md flex flex-col items-center gap-2">
-                       <CheckCircle size={24} /> Finalizar
-                    </button>
-                    <button onClick={handleAbsent} className="py-4 bg-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-300 flex flex-col items-center gap-2">
-                       <UserMinus size={24} /> Ausente
-                    </button>
-                 </div>
-              </div>
+  const renderQueueSystem = () => (
+    <div className="animate-in fade-in duration-300">
+       <div className="flex items-center gap-2 mb-6">
+          <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+            <ChevronLeft size={20} />
+          </button>
+          <h2 className="text-2xl font-bold text-slate-800">Sistema de Senhas</h2>
+       </div>
+       
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Controls */}
+          <div className="space-y-6">
+             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-4">Controle de Atendimento</h3>
+                <div className="grid grid-cols-2 gap-4">
+                   <button onClick={handleCallNext} className="col-span-2 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 shadow-md">
+                      Chamar Próximo
+                   </button>
+                   <button onClick={handleRepeatCall} className="py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200">
+                      Repetir Chamada
+                   </button>
+                   <button onClick={handleManualEntryClick} className="py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200">
+                      Chamar Manual
+                   </button>
+                   <button onClick={handleFinish} className="py-3 bg-green-100 text-green-700 rounded-xl font-medium hover:bg-green-200">
+                      Finalizar Atend.
+                   </button>
+                   <button onClick={handleAbsent} className="py-3 bg-red-100 text-red-700 rounded-xl font-medium hover:bg-red-200">
+                      Ausente
+                   </button>
+                </div>
+             </div>
+             
+             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-4">Emissão de Senhas (Totem)</h3>
+                <div className="grid grid-cols-3 gap-3">
+                   <button onClick={() => handleIssueTicket('Geral')} className="p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all text-center">
+                      <span className="block font-bold text-slate-700">Geral</span>
+                   </button>
+                   <button onClick={() => handleIssueTicket('Prioritário')} className="p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all text-center">
+                      <span className="block font-bold text-slate-700">Prioritário</span>
+                   </button>
+                   <button onClick={() => handleIssueTicket('Exames')} className="p-3 bg-slate-50 border border-slate-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-all text-center">
+                      <span className="block font-bold text-slate-700">Exames</span>
+                   </button>
+                </div>
+             </div>
+          </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2"><ListPlus size={20} /> Fila de Espera</h3>
-                    <div className="flex gap-2">
-                       <button onClick={handleManualEntryClick} className="px-3 py-1 text-sm bg-slate-100 hover:bg-slate-200 rounded text-slate-700">Entrada Manual</button>
-                       <button onClick={() => handleIssueTicket('Geral')} className="px-3 py-1 text-sm bg-blue-50 hover:bg-blue-100 rounded text-blue-700">+ Geral</button>
-                       <button onClick={() => handleIssueTicket('Prioritário')} className="px-3 py-1 text-sm bg-red-50 hover:bg-red-100 rounded text-red-700">+ Prioridade</button>
-                    </div>
-                 </div>
-                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                       <thead className="bg-slate-50 text-slate-600">
-                          <tr>
-                             <th className="p-3 rounded-l-lg">Senha</th>
-                             <th className="p-3">Tipo</th>
-                             <th className="p-3">Chegada</th>
-                             <th className="p-3 rounded-r-lg text-right">Ação</th>
-                          </tr>
-                       </thead>
-                       <tbody className="divide-y divide-slate-50">
-                          {waitingQueue.length === 0 ? (
-                             <tr><td colSpan={4} className="p-4 text-center text-slate-400">Ninguém na fila</td></tr>
-                          ) : (
-                             waitingQueue.map((item, idx) => (
-                                <tr key={idx} className="hover:bg-slate-50">
-                                   <td className="p-3 font-bold text-slate-700">{item.number}</td>
-                                   <td className="p-3">
-                                      <span className={`px-2 py-1 rounded-full text-xs font-bold ${item.type === 'Prioritário' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                                         {item.type}
-                                      </span>
-                                   </td>
-                                   <td className="p-3 text-slate-500">{item.timestamp.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
-                                   <td className="p-3 text-right">
-                                      <button className="text-red-500 hover:bg-red-50 p-1 rounded"><Trash size={14} /></button>
-                                   </td>
-                                </tr>
-                             ))
-                          )}
-                       </tbody>
-                    </table>
-                 </div>
-              </div>
-           </div>
+          {/* Display View */}
+          <div className="space-y-6">
+             <div className="bg-slate-900 text-white p-8 rounded-2xl shadow-xl text-center">
+                <p className="text-slate-400 text-lg uppercase tracking-widest mb-2">Senha Atual</p>
+                <div className="text-7xl font-bold font-mono tracking-tighter mb-4">{currentTicket.number}</div>
+                <div className="inline-block bg-white/10 px-6 py-2 rounded-full text-xl font-medium">
+                   Guichê {currentTicket.desk}
+                </div>
+             </div>
 
-           {/* Sidebar Info */}
-           <div className="space-y-6">
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                 <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><History size={20} /> Histórico Recente</h3>
-                 <div className="space-y-3">
-                    {queueHistory.map((h, i) => (
-                       <div key={i} className="flex justify-between items-center text-sm p-2 bg-slate-50 rounded-lg">
-                          <div>
-                             <span className="font-bold text-slate-700 block">{h.number}</span>
-                             <span className="text-xs text-slate-500">{h.time}</span>
-                          </div>
-                          <div className="text-right">
-                             <span className={`text-xs px-2 py-0.5 rounded ${h.status === 'Atendido' ? 'bg-blue-100 text-blue-700' : h.status === 'Concluído' ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
-                                {h.status}
-                             </span>
-                             <span className="text-xs text-slate-400 block">Guichê {h.desk}</span>
-                          </div>
-                       </div>
-                    ))}
-                 </div>
-              </div>
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-2xl text-white shadow-lg">
-                 <h3 className="font-bold mb-2">Estatísticas do Dia</h3>
-                 <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                       <p className="text-blue-200 text-xs uppercase">Atendidos</p>
-                       <p className="text-3xl font-bold">45</p>
-                    </div>
-                    <div>
-                       <p className="text-blue-200 text-xs uppercase">T. Médio</p>
-                       <p className="text-3xl font-bold">5m</p>
-                    </div>
-                    <div>
-                       <p className="text-blue-200 text-xs uppercase">Espera</p>
-                       <p className="text-3xl font-bold">12m</p>
-                    </div>
-                    <div>
-                       <p className="text-blue-200 text-xs uppercase">Guichês</p>
-                       <p className="text-3xl font-bold">5/8</p>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-      )}
+             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-4">Fila de Espera ({waitingQueue.length})</h3>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                   {waitingQueue.length === 0 && <p className="text-slate-400 text-center py-4">Fila vazia</p>}
+                   {waitingQueue.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                         <span className="font-bold text-slate-700">{item.number}</span>
+                         <span className={`text-xs px-2 py-1 rounded font-bold ${item.type === 'Prioritário' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {item.type}
+                         </span>
+                      </div>
+                   ))}
+                </div>
+             </div>
+          </div>
+       </div>
 
-      {/* Manual Entry Modal */}
-      {showManualModal && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white rounded-2xl p-6 w-96 shadow-2xl">
-               <h3 className="font-bold text-lg mb-4">Entrada Manual / Chamada</h3>
-               <div className="space-y-4">
-                  <div>
-                     <label className="block text-sm font-medium text-slate-700 mb-1">Número da Senha</label>
-                     <input 
-                        type="text" 
-                        value={manualInput} 
-                        onChange={(e) => setManualInput(e.target.value)}
-                        placeholder="Ex: A-205" 
-                        className="w-full border border-slate-300 rounded-lg p-2 uppercase"
-                        autoFocus
-                     />
-                  </div>
-                  <div>
-                     <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
-                     <select 
-                        value={manualType} 
-                        // @ts-ignore
-                        onChange={(e) => setManualType(e.target.value)}
-                        className="w-full border border-slate-300 rounded-lg p-2"
-                     >
-                        <option value="Geral">Geral</option>
-                        <option value="Prioritário">Prioritário</option>
-                        <option value="Exames">Exames</option>
-                     </select>
-                  </div>
-                  <div className="flex gap-2 pt-2">
-                     <button onClick={() => setShowManualModal(false)} className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 font-medium">Cancelar</button>
-                     <button onClick={addToQueueManual} className="flex-1 py-2 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-700 font-medium">Adicionar à Fila</button>
-                     <button onClick={confirmManualEntry} className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-medium">Chamar Agora</button>
-                  </div>
+       {showManualModal && (
+         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-xl w-80">
+               <h3 className="font-bold text-lg mb-4">Entrada Manual</h3>
+               <input 
+                  type="text" 
+                  value={manualInput} 
+                  onChange={e => setManualInput(e.target.value)} 
+                  className="w-full border p-2 rounded mb-4" 
+                  placeholder="Ex: A-999"
+                  autoFocus
+               />
+               <select 
+                  value={manualType} 
+                  // @ts-ignore
+                  onChange={e => setManualType(e.target.value)} 
+                  className="w-full border p-2 rounded mb-4"
+               >
+                  <option value="Geral">Geral</option>
+                  <option value="Prioritário">Prioritário</option>
+                  <option value="Exames">Exames</option>
+               </select>
+               <div className="flex gap-2">
+                  <button onClick={() => setShowManualModal(false)} className="flex-1 py-2 bg-slate-100 rounded">Cancelar</button>
+                  <button onClick={confirmManualEntry} className="flex-1 py-2 bg-blue-600 text-white rounded">Chamar</button>
                </div>
             </div>
          </div>
-      )}
+       )}
     </div>
   );
 
   const renderWarehouseModule = () => (
     <div className="animate-in fade-in duration-300">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-           <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
-             <ChevronLeft size={20} />
-           </button>
-           <div>
-             <h2 className="text-2xl font-bold text-slate-800">Almoxarifado Central</h2>
-             <p className="text-sm text-slate-500">Controle de Estoque e Requisições</p>
-           </div>
-        </div>
-        <div className="flex gap-2">
-           <button 
-             onClick={() => setIsInventoryLocked(!isInventoryLocked)}
-             className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 ${isInventoryLocked ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}`}
-           >
-             {isInventoryLocked ? <Lock size={16} /> : <LockKeyhole size={16} />} 
-             {isInventoryLocked ? 'Inventário em Andamento (Bloqueado)' : 'Bloquear para Inventário'}
-           </button>
-        </div>
-      </div>
+       <div className="flex items-center gap-2 mb-6">
+          <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+            <ChevronLeft size={20} />
+          </button>
+          <h2 className="text-2xl font-bold text-slate-800">Almoxarifado Central</h2>
+       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit">
-         {['dashboard', 'estoque', 'requisicoes', 'entradas', 'relatorios'].map(tab => (
-            <button 
-               key={tab}
-               onClick={() => setActiveWarehouseTab(tab)}
-               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
-                  activeWarehouseTab === tab ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-               }`}
-            >
-               {tab}
-            </button>
-         ))}
-      </div>
+       <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit overflow-x-auto">
+          {['dashboard', 'kardex', 'financeiro', 'validade', 'anual'].map(tab => (
+             <button 
+                key={tab}
+                onClick={() => setActiveReport(tab === 'dashboard' ? null : tab)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium capitalize ${(!activeReport && tab === 'dashboard') || activeReport === tab ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+             >
+                {tab}
+             </button>
+          ))}
+       </div>
 
-      {/* Content */}
-      {activeWarehouseTab === 'dashboard' && (
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-               <div className="flex justify-between items-start">
-                  <div>
-                     <p className="text-sm text-slate-500 font-medium">Itens Críticos</p>
-                     <h3 className="text-3xl font-bold text-red-600 mt-2">{warehouseItems.filter(i => i.status === 'Crítico').length}</h3>
-                  </div>
-                  <div className="p-2 bg-red-50 text-red-600 rounded-lg"><AlertTriangle size={24} /></div>
-               </div>
-               <p className="text-xs text-slate-400 mt-2">Abaixo do estoque mínimo</p>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-               <div className="flex justify-between items-start">
-                  <div>
-                     <p className="text-sm text-slate-500 font-medium">Valor em Estoque</p>
-                     <h3 className="text-3xl font-bold text-slate-800 mt-2">
-                        R$ {warehouseItems.reduce((acc, i) => acc + (i.stock * i.price), 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}
-                     </h3>
-                  </div>
-                  <div className="p-2 bg-green-50 text-green-600 rounded-lg"><DollarSign size={24} /></div>
-               </div>
-               <p className="text-xs text-slate-400 mt-2">Preço médio ponderado</p>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-               <div className="flex justify-between items-start">
-                  <div>
-                     <p className="text-sm text-slate-500 font-medium">Req. Pendentes</p>
-                     <h3 className="text-3xl font-bold text-amber-600 mt-2">{warehouseReqs.filter(r => r.status === 'Pendente').length}</h3>
-                  </div>
-                  <div className="p-2 bg-amber-50 text-amber-600 rounded-lg"><ClipboardList size={24} /></div>
-               </div>
-               <p className="text-xs text-slate-400 mt-2">Aguardando atendimento</p>
-            </div>
-         </div>
-      )}
+       {activeReport ? renderReportView() : (
+          <div className="space-y-6">
+             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm">
+                   <p className="text-sm text-slate-500">Itens em Estoque</p>
+                   <h3 className="text-2xl font-bold text-blue-700">1,240</h3>
+                </div>
+                <div className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
+                   <p className="text-sm text-slate-500">Estoque Crítico</p>
+                   <h3 className="text-2xl font-bold text-red-700">15</h3>
+                </div>
+                <div className="bg-white p-6 rounded-xl border border-green-200 shadow-sm">
+                   <p className="text-sm text-slate-500">Valor Total</p>
+                   <h3 className="text-2xl font-bold text-green-700">R$ 450k</h3>
+                </div>
+                <div className="bg-white p-6 rounded-xl border border-orange-200 shadow-sm">
+                   <p className="text-sm text-slate-500">Requisições (Dia)</p>
+                   <h3 className="text-2xl font-bold text-orange-700">24</h3>
+                </div>
+             </div>
 
-      {activeWarehouseTab === 'estoque' && (
-         <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-            <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-               <div className="relative max-w-md w-full">
-                  <input type="text" placeholder="Buscar item..." className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm" />
-                  <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
-               </div>
-               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">+ Novo Item</button>
-            </div>
-            <table className="w-full text-left text-sm">
-               <thead className="bg-white text-slate-600 font-semibold border-b border-slate-200">
-                  <tr>
-                     <th className="p-4">Código</th>
-                     <th className="p-4">Descrição</th>
-                     <th className="p-4 text-right">Estoque</th>
-                     <th className="p-4 text-right">Mínimo</th>
-                     <th className="p-4 text-center">Unid.</th>
-                     <th className="p-4 text-center">Status</th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-100">
-                  {warehouseItems.map(item => (
-                     <tr key={item.id} className="hover:bg-slate-50">
-                        <td className="p-4 font-mono text-slate-500">{item.id}</td>
-                        <td className="p-4 font-medium text-slate-800">{item.name}</td>
-                        <td className="p-4 text-right font-bold">{item.stock}</td>
-                        <td className="p-4 text-right text-slate-500">{item.min}</td>
-                        <td className="p-4 text-center text-slate-500">{item.unit}</td>
-                        <td className="p-4 text-center">
-                           <span className={`px-2 py-1 rounded-full text-xs font-bold ${item.status === 'Crítico' ? 'bg-red-100 text-red-700' : item.status === 'Baixo' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
-                              {item.status}
-                           </span>
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
-            </table>
-         </div>
-      )}
-
-      {activeWarehouseTab === 'requisicoes' && (
-         <div className="space-y-4">
-            <div className="flex justify-end">
-               <button 
-                  onClick={() => setShowReqModal(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2"
-               >
-                  <Plus size={16} /> Nova Requisição
-               </button>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200">
-               <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                     <tr>
-                        <th className="p-4">ID</th>
-                        <th className="p-4">Departamento</th>
-                        <th className="p-4">Data</th>
-                        <th className="p-4">Itens</th>
-                        <th className="p-4 text-center">Status</th>
-                        <th className="p-4 text-right">Ações</th>
-                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                     {warehouseReqs.map(req => (
-                        <tr key={req.id} className="hover:bg-slate-50">
-                           <td className="p-4 font-mono text-slate-500">{req.id}</td>
-                           <td className="p-4">{req.dept}</td>
-                           <td className="p-4 text-slate-500">{req.date}</td>
-                           <td className="p-4">{req.totalItems} itens</td>
-                           <td className="p-4 text-center">
-                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                                 req.status === 'Pendente' ? 'bg-amber-100 text-amber-700' : 
-                                 req.status === 'Atendido' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                              }`}>
-                                 {req.status}
-                              </span>
-                           </td>
-                           <td className="p-4 text-right">
-                              {req.status === 'Pendente' && (
-                                 <button 
-                                    onClick={() => handleFulfillReq(req.id)}
-                                    className="text-blue-600 font-medium hover:underline"
-                                 >
-                                    Atender
-                                 </button>
-                              )}
-                           </td>
-                        </tr>
-                     ))}
-                  </tbody>
-               </table>
-            </div>
-         </div>
-      )}
-
-      {activeWarehouseTab === 'entradas' && (
-         <div className="space-y-6">
-            <div className="bg-white p-8 rounded-xl border border-dashed border-slate-300 text-center hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-               <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <UploadCloud size={32} />
-               </div>
-               <h3 className="text-lg font-bold text-slate-800">Importar XML da Nota Fiscal (NFe)</h3>
-               <p className="text-slate-500 mt-2">Clique para selecionar ou arraste o arquivo aqui</p>
-               <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleXmlImport} 
-                  className="hidden" 
-                  accept=".xml" 
-               />
-            </div>
-         </div>
-      )}
-
-      {activeWarehouseTab === 'relatorios' && (
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1 space-y-2">
-               {['kardex', 'financeiro', 'validade', 'anual', 'contabil'].map(rep => (
-                  <button 
-                     key={rep}
-                     onClick={() => setActiveReport(rep)}
-                     className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors border ${
-                        activeReport === rep 
-                           ? 'bg-blue-50 border-blue-200 text-blue-700' 
-                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                     }`}
-                  >
-                     Relatório: {rep.charAt(0).toUpperCase() + rep.slice(1)}
-                  </button>
-               ))}
-            </div>
-            <div className="md:col-span-2">
-               {activeReport ? renderReportView() : (
-                  <div className="h-full flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200 rounded-xl p-8">
-                     <FileBarChart size={48} className="mb-4 opacity-50" />
-                     <p>Selecione um relatório para visualizar</p>
-                  </div>
-               )}
-            </div>
-         </div>
-      )}
-      
-      {/* Invoice Entry Modal */}
-      {showEntryModal && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-               <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-2xl">
-                  <div>
-                     <h3 className="font-bold text-xl text-slate-800">Entrada de Nota Fiscal</h3>
-                     <p className="text-sm text-slate-500">Conferência e Lançamento de Estoque</p>
-                  </div>
-                  <button onClick={() => setShowEntryModal(false)} className="hover:bg-slate-200 p-2 rounded-full"><X size={20} /></button>
-               </div>
-               
-               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  {/* Header Info */}
-                  <div className="grid grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                     <div>
-                        <span className="text-xs text-slate-500 uppercase font-bold">Número</span>
-                        <p className="font-mono font-medium">{invoiceHeader.number}</p>
-                     </div>
-                     <div>
-                        <span className="text-xs text-slate-500 uppercase font-bold">Fornecedor</span>
-                        <p className="font-medium">{invoiceHeader.supplier}</p>
-                     </div>
-                     <div>
-                        <span className="text-xs text-slate-500 uppercase font-bold">Data Emissão</span>
-                        <p className="font-medium">{invoiceHeader.date}</p>
-                     </div>
-                     <div className="col-span-3">
-                        <span className="text-xs text-slate-500 uppercase font-bold">Chave de Acesso</span>
-                        <p className="font-mono text-xs">{invoiceHeader.key}</p>
-                     </div>
-                  </div>
-
-                  {/* Items Table */}
-                  <table className="w-full text-sm text-left">
-                     <thead className="bg-slate-100 text-slate-600 font-semibold">
-                        <tr>
-                           <th className="p-3">Item</th>
-                           <th className="p-3 text-right">Qtd</th>
-                           <th className="p-3 text-right">Custo Unit.</th>
-                           <th className="p-3 text-right">Total</th>
-                           <th className="p-3 text-center">Ação</th>
-                        </tr>
-                     </thead>
-                     <tbody className="divide-y divide-slate-100">
-                        {invoiceItemsList.map((item, idx) => (
-                           <tr key={idx}>
-                              <td className="p-3">{item.itemName}</td>
-                              <td className="p-3 text-right">{item.qty}</td>
-                              <td className="p-3 text-right">R$ {item.cost.toFixed(2)}</td>
-                              <td className="p-3 text-right">R$ {item.total.toFixed(2)}</td>
-                              <td className="p-3 text-center">
-                                 <button onClick={() => removeInvoiceItem(idx)} className="text-red-500 hover:text-red-700"><Trash size={16} /></button>
-                              </td>
-                           </tr>
-                        ))}
-                     </tbody>
-                  </table>
-
-                  {/* Add Manual Item */}
-                  <div className="flex gap-4 items-end bg-slate-50 p-4 rounded-xl">
-                     <div className="flex-1">
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Produto</label>
-                        <select 
-                           className="w-full border border-slate-300 rounded p-2 text-sm"
-                           value={tempEntry.itemId}
-                           onChange={(e) => setTempEntry({...tempEntry, itemId: e.target.value})}
-                        >
-                           {warehouseItems.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-                        </select>
-                     </div>
-                     <div className="w-24">
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Qtd</label>
-                        <input 
-                           type="number" className="w-full border border-slate-300 rounded p-2 text-sm" 
-                           value={tempEntry.qty}
-                           onChange={(e) => setTempEntry({...tempEntry, qty: Number(e.target.value)})}
-                        />
-                     </div>
-                     <div className="w-32">
-                        <label className="block text-xs font-bold text-slate-500 mb-1">Custo (R$)</label>
-                        <input 
-                           type="number" step="0.01" className="w-full border border-slate-300 rounded p-2 text-sm" 
-                           value={tempEntry.cost}
-                           onChange={(e) => setTempEntry({...tempEntry, cost: Number(e.target.value)})}
-                        />
-                     </div>
-                     <button 
-                        onClick={addItemToInvoice}
-                        className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700"
-                     >
-                        Adicionar
-                     </button>
-                  </div>
-               </div>
-
-               <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl flex justify-between items-center">
-                  <div>
-                     <span className="text-sm text-slate-500">Valor Total da Nota</span>
-                     <p className="text-2xl font-bold text-slate-800">
-                        R$ {invoiceItemsList.reduce((acc, i) => acc + i.total, 0).toFixed(2)}
-                     </p>
-                  </div>
-                  <div className="flex gap-3">
-                     <button onClick={() => setShowEntryModal(false)} className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg font-medium hover:bg-white">Cancelar</button>
-                     <button onClick={processInvoiceEntry} className="px-6 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-md flex items-center gap-2">
-                        <CheckCircle size={20} /> Confirmar Entrada
-                     </button>
-                  </div>
-               </div>
-            </div>
-         </div>
-      )}
-
-      {/* New Request Modal */}
-      {showReqModal && (
-         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl p-6">
-               <h3 className="font-bold text-xl mb-4 text-slate-800">Nova Requisição de Material</h3>
-               <div className="space-y-4">
-                  <div>
-                     <label className="block text-sm font-medium text-slate-700 mb-1">Departamento Solicitante</label>
-                     <select 
-                        className="w-full border border-slate-300 rounded-lg p-2.5"
-                        value={tempReq.dept}
-                        onChange={(e) => setTempReq({...tempReq, dept: e.target.value})}
-                     >
-                        <option>Secretaria de Saúde</option>
-                        <option>Secretaria de Educação</option>
-                        <option>Gabinete do Prefeito</option>
-                        <option>Obras e Serviços</option>
-                     </select>
-                  </div>
-                  
-                  <div className="border rounded-xl p-4 bg-slate-50">
-                     <h4 className="font-bold text-sm text-slate-600 mb-3">Itens da Requisição</h4>
-                     <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
-                        {tempReq.items.map((item, i) => (
-                           <div key={i} className="flex justify-between items-center text-sm bg-white p-2 rounded border border-slate-200">
-                              <span>{warehouseItems.find(w => w.id === item.itemId)?.name}</span>
-                              <div className="flex gap-4">
-                                 <span className="font-bold">{item.qty} un</span>
-                                 <button onClick={() => setTempReq({...tempReq, items: tempReq.items.filter((_, idx) => idx !== i)})} className="text-red-500"><X size={14} /></button>
-                              </div>
-                           </div>
-                        ))}
-                        {tempReq.items.length === 0 && <p className="text-center text-slate-400 text-sm">Nenhum item adicionado</p>}
-                     </div>
-
-                     <div className="flex gap-2 items-end">
-                        <div className="flex-1">
-                           <select 
-                              className="w-full border border-slate-300 rounded p-2 text-sm"
-                              value={tempReqItem.itemId}
-                              onChange={(e) => setTempReqItem({...tempReqItem, itemId: e.target.value})}
-                           >
-                              {warehouseItems.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-                           </select>
-                        </div>
-                        <div className="w-24">
-                           <input 
-                              type="number" className="w-full border border-slate-300 rounded p-2 text-sm" placeholder="Qtd"
-                              value={tempReqItem.qty}
-                              onChange={(e) => setTempReqItem({...tempReqItem, qty: Number(e.target.value)})}
-                           />
-                        </div>
-                        <button onClick={handleAddReqItem} className="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700">+</button>
-                     </div>
-                  </div>
-
-                  <div className="flex justify-end gap-3 pt-4">
-                     <button onClick={() => setShowReqModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium">Cancelar</button>
-                     <button onClick={handleFinalizeReq} className="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">Criar Requisição</button>
-                  </div>
-               </div>
-            </div>
-         </div>
-      )}
+             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <div className="flex justify-between items-center mb-6">
+                   <h3 className="font-bold text-slate-800">Estoque Atual</h3>
+                   <div className="flex gap-2">
+                      <button onClick={() => setShowEntryModal(true)} className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Nova Entrada</button>
+                      <button onClick={() => setShowReqModal(true)} className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200">Nova Requisição</button>
+                   </div>
+                </div>
+                <table className="w-full text-left text-sm">
+                   <thead className="bg-slate-50 text-slate-600">
+                      <tr>
+                         <th className="p-3">Item</th>
+                         <th className="p-3">Unid.</th>
+                         <th className="p-3 text-right">Estoque</th>
+                         <th className="p-3 text-right">Mínimo</th>
+                         <th className="p-3 text-center">Status</th>
+                      </tr>
+                   </thead>
+                   <tbody className="divide-y divide-slate-100">
+                      {warehouseItems.map(item => (
+                         <tr key={item.id} className="hover:bg-slate-50">
+                            <td className="p-3 font-medium">{item.name}</td>
+                            <td className="p-3 text-slate-500">{item.unit}</td>
+                            <td className="p-3 text-right font-bold">{item.stock}</td>
+                            <td className="p-3 text-right text-slate-500">{item.min}</td>
+                            <td className="p-3 text-center">
+                               <span className={`px-2 py-1 rounded-full text-xs font-bold ${item.status === 'Normal' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                  {item.status}
+                               </span>
+                            </td>
+                         </tr>
+                      ))}
+                   </tbody>
+                </table>
+             </div>
+          </div>
+       )}
     </div>
   );
-
-  const renderPublicAccounting = () => {
-    // Mock Data
-    const quotas = [
-      { code: '3.3.90.30.00', desc: 'Material de Consumo', budget: 1500000, locked: 200000, available: 850000, percentage: 70 },
-      { code: '3.3.90.39.00', desc: 'Serviços de Terceiros PJ', budget: 3200000, locked: 500000, available: 1200000, percentage: 45 },
-      { code: '4.4.90.51.00', desc: 'Obras e Instalações', budget: 5000000, locked: 0, available: 4800000, percentage: 95 },
-    ];
-
-    const empenhos = [
-      { id: '2024/00552', credor: 'Papelaria Central Ltda', valor: 4500.00, data: '10/05/2024', fase: 'Empenhado' },
-      { id: '2024/00551', credor: 'Construtora Forte', valor: 125000.00, data: '08/05/2024', fase: 'Liquidado' },
-      { id: '2024/00540', credor: 'Distribuidora Água Pura', valor: 890.00, data: '02/05/2024', fase: 'Pago' },
-    ];
-
-    const accounts = [
-      { bank: 'Banco do Brasil', agency: '001-9', account: '10.500-X', name: 'Movimento Geral', balance: 4500200.50 },
-      { bank: 'Caixa Econômica', agency: '2040', account: '500-1', name: 'Convênio Saúde', balance: 125000.00 },
-      { bank: 'Banco do Brasil', agency: '001-9', account: '12.000-5', name: 'Fundo Educação', balance: 890000.00 },
-    ];
-
-    return (
-      <div className="animate-in fade-in duration-300">
-         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <div className="flex items-center gap-2">
-               <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
-                 <ChevronLeft size={20} />
-               </button>
-               <div>
-                 <h2 className="text-2xl font-bold text-slate-800">Contabilidade Pública</h2>
-                 <p className="text-sm text-slate-500">Execução Orçamentária e Financeira</p>
-               </div>
-            </div>
-            <div className="flex gap-2">
-               <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 flex items-center gap-2">
-                  <Calculator size={16} /> Novo Lançamento
-               </button>
-               <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 flex items-center gap-2">
-                  <LockKeyhole size={16} /> Fechar Mês
-               </button>
-            </div>
-         </div>
-
-         {/* Internal Navigation */}
-         <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit overflow-x-auto max-w-full">
-            {[
-               { id: 'dashboard', label: 'Visão Geral' },
-               { id: 'orcamento', label: 'Gestão do Orçamento' },
-               { id: 'execucao', label: 'Execução Orçamentária' },
-               { id: 'financeiro', label: 'Financeiro' },
-               { id: 'relatorios', label: 'Prestação de Contas' }
-            ].map(tab => (
-               <button 
-                  key={tab.id}
-                  onClick={() => setAccountingTab(tab.id as any)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap capitalize ${
-                     accountingTab === tab.id ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-                  }`}
-               >
-                  {tab.label}
-               </button>
-            ))}
-         </div>
-
-         {/* --- DASHBOARD TAB --- */}
-         {accountingTab === 'dashboard' && (
-            <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="bg-white p-6 rounded-xl border border-emerald-200 shadow-sm">
-                     <p className="text-sm text-slate-500 font-medium">Superávit Financeiro</p>
-                     <h3 className="text-2xl font-bold text-emerald-700 mt-1">R$ 2.450.000,00</h3>
-                     <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1"><TrendingUp size={12} /> +12% vs ano anterior</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
-                     <p className="text-sm text-slate-500 font-medium">Restos a Pagar</p>
-                     <h3 className="text-2xl font-bold text-red-700 mt-1">R$ 850.000,00</h3>
-                     <p className="text-xs text-red-600 mt-2 flex items-center gap-1"><AlertCircle size={12} /> Exige atenção</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm">
-                     <p className="text-sm text-slate-500 font-medium">Disponibilidade de Caixa</p>
-                     <h3 className="text-2xl font-bold text-blue-700 mt-1">R$ 5.120.000,00</h3>
-                     <p className="text-xs text-slate-400 mt-2">Todas as fontes</p>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl border border-orange-200 shadow-sm">
-                     <p className="text-sm text-slate-500 font-medium">Dívida Flutuante</p>
-                     <h3 className="text-2xl font-bold text-orange-700 mt-1">R$ 1.200.000,00</h3>
-                     <p className="text-xs text-slate-400 mt-2">Curto prazo</p>
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                     <h3 className="font-bold text-slate-800 mb-4">Evolução da Receita x Despesa</h3>
-                     <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
-                           <AreaChart data={[
-                              {name: 'Jan', rec: 4000, desp: 2400},
-                              {name: 'Fev', rec: 3000, desp: 1398},
-                              {name: 'Mar', rec: 2000, desp: 9800},
-                              {name: 'Abr', rec: 2780, desp: 3908},
-                              {name: 'Mai', rec: 1890, desp: 4800},
-                           ]}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                              <XAxis dataKey="name" />
-                              <YAxis />
-                              <Tooltip />
-                              <Legend />
-                              <Area type="monotone" dataKey="rec" name="Receita" stroke="#10b981" fill="#d1fae5" />
-                              <Area type="monotone" dataKey="desp" name="Despesa" stroke="#ef4444" fill="#fee2e2" />
-                           </AreaChart>
-                        </ResponsiveContainer>
-                     </div>
-                  </div>
-                  
-                  <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                     <h3 className="font-bold text-slate-800 mb-4">Execução por Grupo de Despesa</h3>
-                     <div className="h-64 flex items-center justify-center">
-                        <ResponsiveContainer width="100%" height="100%">
-                           <PieChart>
-                              <Pie data={[
-                                 {name: 'Pessoal', value: 45},
-                                 {name: 'Custeio', value: 30},
-                                 {name: 'Investimento', value: 20},
-                                 {name: 'Dívida', value: 5},
-                              ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                                 <Cell fill="#3b82f6" />
-                                 <Cell fill="#f97316" />
-                                 <Cell fill="#10b981" />
-                                 <Cell fill="#ef4444" />
-                              </Pie>
-                              <Tooltip />
-                              <Legend />
-                           </PieChart>
-                        </ResponsiveContainer>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         )}
-
-         {/* --- ORCAMENTO TAB --- */}
-         {accountingTab === 'orcamento' && (
-            <div className="space-y-6">
-               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <div className="flex justify-between items-center mb-6">
-                     <div>
-                        <h3 className="font-bold text-slate-800 text-lg">Controle de Cotas de Despesa</h3>
-                        <p className="text-sm text-slate-500">Gerenciamento bimestral/trimestral do orçamento</p>
-                     </div>
-                     <div className="flex gap-2">
-                        <button className="px-3 py-2 border border-red-200 bg-red-50 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100 flex items-center gap-2">
-                           <FileWarning size={16} /> Contingenciar
-                        </button>
-                        <button className="px-3 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900">
-                           Recalcular Cotas
-                        </button>
-                     </div>
-                  </div>
-                  
-                  <div className="overflow-x-auto">
-                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                           <tr>
-                              <th className="p-3">Dotação</th>
-                              <th className="p-3">Descrição</th>
-                              <th className="p-3 text-right">Orçado Atualizado</th>
-                              <th className="p-3 text-right">Contingenciado/Bloqueado</th>
-                              <th className="p-3 text-right">Disponível para Empenho</th>
-                              <th className="p-3 text-center">Execução</th>
-                           </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                           {quotas.map((q, i) => (
-                              <tr key={i} className="hover:bg-slate-50">
-                                 <td className="p-3 font-mono text-slate-500">{q.code}</td>
-                                 <td className="p-3 font-medium text-slate-700">{q.desc}</td>
-                                 <td className="p-3 text-right font-bold">R$ {q.budget.toLocaleString()}</td>
-                                 <td className="p-3 text-right text-red-600">R$ {q.locked.toLocaleString()}</td>
-                                 <td className="p-3 text-right text-emerald-600">R$ {q.available.toLocaleString()}</td>
-                                 <td className="p-3 align-middle">
-                                    <div className="w-full bg-slate-200 rounded-full h-2">
-                                       <div className="bg-blue-600 h-2 rounded-full" style={{width: `${q.percentage}%`}}></div>
-                                    </div>
-                                    <span className="text-xs text-slate-500 text-center block mt-1">{q.percentage}%</span>
-                                 </td>
-                              </tr>
-                           ))}
-                        </tbody>
-                     </table>
-                  </div>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><LockKeyhole size={20} /> Abertura e Encerramento</h4>
-                     <ul className="space-y-2 text-sm text-slate-600">
-                        <li className="flex justify-between p-2 hover:bg-slate-50 rounded cursor-pointer">
-                           <span>Encerramento do Exercício (Etapas)</span>
-                           <span className="text-blue-600 font-medium">Iniciar</span>
-                        </li>
-                        <li className="flex justify-between p-2 hover:bg-slate-50 rounded cursor-pointer">
-                           <span>Inscrição em Restos a Pagar</span>
-                           <span className="text-blue-600 font-medium">Processar</span>
-                        </li>
-                        <li className="flex justify-between p-2 hover:bg-slate-50 rounded cursor-pointer">
-                           <span>Abertura de Orçamento (Lançamentos Iniciais)</span>
-                           <span className="text-blue-600 font-medium">Gerar</span>
-                        </li>
-                     </ul>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><AlertTriangle size={20} /> Consistência de Dados</h4>
-                     <p className="text-sm text-slate-500 mb-4">Verificação de integridade da base antes do encerramento.</p>
-                     <button className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition-colors">
-                        Executar Verificação de Inconsistências
-                     </button>
-                  </div>
-               </div>
-            </div>
-         )}
-
-         {/* --- EXECUCAO TAB --- */}
-         {accountingTab === 'execucao' && (
-            <div className="space-y-6">
-               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-slate-800">Empenhos Emitidos</h3>
-                        <div className="flex gap-2">
-                           <button className="text-sm px-3 py-1 border border-slate-300 rounded bg-white hover:bg-slate-50">Filtros</button>
-                           <button className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">+ Empenho</button>
-                        </div>
-                     </div>
-                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-slate-600">
-                           <tr>
-                              <th className="p-3">Número</th>
-                              <th className="p-3">Data</th>
-                              <th className="p-3">Credor</th>
-                              <th className="p-3 text-right">Valor</th>
-                              <th className="p-3 text-center">Fase Atual</th>
-                              <th className="p-3 text-center">Ações</th>
-                           </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                           {empenhos.map((e, i) => (
-                              <tr key={i} className="hover:bg-slate-50 group">
-                                 <td className="p-3 font-medium text-slate-700">{e.id}</td>
-                                 <td className="p-3 text-slate-500">{e.data}</td>
-                                 <td className="p-3 text-slate-700 font-medium">{e.credor}</td>
-                                 <td className="p-3 text-right">R$ {e.valor.toLocaleString()}</td>
-                                 <td className="p-3 text-center">
-                                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                                       e.fase === 'Pago' ? 'bg-green-100 text-green-700' :
-                                       e.fase === 'Liquidado' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'
-                                    }`}>
-                                       {e.fase}
-                                    </span>
-                                 </td>
-                                 <td className="p-3 text-center">
-                                    <button className="text-slate-400 hover:text-blue-600">Gerenciar</button>
-                                 </td>
-                              </tr>
-                           ))}
-                        </tbody>
-                     </table>
-                  </div>
-
-                  <div className="space-y-6">
-                     <div className="bg-white p-6 rounded-xl border border-slate-200">
-                        <h4 className="font-bold text-slate-800 mb-4">Ações Rápidas</h4>
-                        <div className="grid grid-cols-2 gap-3">
-                           <button className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 hover:bg-slate-100 flex flex-col items-center gap-2">
-                              <FileCheck size={20} className="text-blue-600" /> Liquidar
-                           </button>
-                           <button className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 hover:bg-slate-100 flex flex-col items-center gap-2">
-                              <Wallet size={20} className="text-green-600" /> Pagar
-                           </button>
-                           <button className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 hover:bg-slate-100 flex flex-col items-center gap-2">
-                              <FileWarning size={20} className="text-red-600" /> Anular
-                           </button>
-                           <button className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 hover:bg-slate-100 flex flex-col items-center gap-2">
-                              <Scroll size={20} className="text-amber-600" /> Restos a Pagar
-                           </button>
-                        </div>
-                     </div>
-                     
-                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <h4 className="font-bold text-xs text-slate-500 uppercase mb-2">Liquidações Pendentes</h4>
-                        <div className="flex justify-between items-center mb-1">
-                           <span className="text-sm">Folha de Pagamento</span>
-                           <span className="text-sm font-bold">R$ 2.4M</span>
-                        </div>
-                        <div className="w-full bg-white h-2 rounded-full mb-3">
-                           <div className="bg-orange-500 h-2 rounded-full" style={{width: '80%'}}></div>
-                        </div>
-                        <button className="text-xs text-blue-600 hover:underline w-full text-center">Ver todas</button>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         )}
-
-         {/* --- FINANCEIRO TAB --- */}
-         {accountingTab === 'financeiro' && (
-            <div className="space-y-6">
-               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                  <div className="flex justify-between items-center mb-6">
-                     <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <LandmarkIcon size={24} className="text-slate-600" /> Tesouraria e Conciliação
-                     </h3>
-                     <button className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-900 flex items-center gap-2">
-                        <UploadCloud size={16} /> Importar OFX (Extrato)
-                     </button>
-                  </div>
-
-                  <table className="w-full text-left text-sm">
-                     <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
-                        <tr>
-                           <th className="p-3">Banco</th>
-                           <th className="p-3">Agência/Conta</th>
-                           <th className="p-3">Descrição da Conta</th>
-                           <th className="p-3 text-right">Saldo Atual</th>
-                           <th className="p-3 text-center">Status Conciliação</th>
-                           <th className="p-3 text-center">Ações</th>
-                        </tr>
-                     </thead>
-                     <tbody className="divide-y divide-slate-100">
-                        {accounts.map((acc, i) => (
-                           <tr key={i} className="hover:bg-slate-50">
-                              <td className="p-3 font-medium text-slate-700">{acc.bank}</td>
-                              <td className="p-3 text-slate-500 font-mono">{acc.agency} / {acc.account}</td>
-                              <td className="p-3 text-slate-600">{acc.name}</td>
-                              <td className="p-3 text-right font-bold text-slate-800">R$ {acc.balance.toLocaleString()}</td>
-                              <td className="p-3 text-center">
-                                 <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Conciliado</span>
-                              </td>
-                              <td className="p-3 text-center">
-                                 <button className="text-blue-600 hover:underline text-xs mr-2">Extrato</button>
-                                 <button className="text-slate-500 hover:text-slate-800 text-xs">Conciliar</button>
-                              </td>
-                           </tr>
-                        ))}
-                     </tbody>
-                  </table>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4">Pagamentos em Lote (Borderôs)</h4>
-                     <p className="text-sm text-slate-500 mb-4">Gerencie os pagamentos agrupados e gere arquivos de remessa para o banco.</p>
-                     <button className="w-full py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100">
-                        Gerar Borderô de Pagamento
-                     </button>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4">Retenções e Extra-Orçamentário</h4>
-                     <p className="text-sm text-slate-500 mb-4">Controle de ISS, IRRF, INSS retidos e consignações.</p>
-                     <button className="w-full py-2 bg-slate-50 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-100">
-                        Gerenciar Guias de Recolhimento
-                     </button>
-                  </div>
-                  <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4">Transferências Financeiras</h4>
-                     <p className="text-sm text-slate-500 mb-4">Repasses para Câmara, Autarquias e Fundos.</p>
-                     <button className="w-full py-2 bg-slate-50 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-100">
-                        Registrar Transferência
-                     </button>
-                  </div>
-               </div>
-            </div>
-         )}
-
-         {/* --- RELATORIOS / PRESTACAO DE CONTAS TAB --- */}
-         {accountingTab === 'relatorios' && (
-            <div className="bg-white p-8 rounded-xl border border-slate-200">
-               <h3 className="font-bold text-xl text-slate-800 mb-2">Central de Prestação de Contas</h3>
-               <p className="text-slate-500 mb-8">Emissão de relatórios oficiais e arquivos para órgãos fiscalizadores.</p>
-               
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                     <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><FileText size={18} /> Relatórios Obrigatórios (LRF 101/2000)</h4>
-                     <div className="space-y-2">
-                        {['RREO - Resumido da Execução Orçamentária', 'RGF - Gestão Fiscal', 'Balanço Orçamentário', 'Balanço Financeiro', 'Balanço Patrimonial', 'Dívida Flutuante'].map((rep, i) => (
-                           <button key={i} className="w-full text-left p-3 border border-slate-100 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors text-sm text-slate-600 flex justify-between items-center group">
-                              {rep} <Download size={16} className="opacity-0 group-hover:opacity-100 text-blue-600 transition-opacity" />
-                           </button>
-                        ))}
-                     </div>
-                  </div>
-                  <div>
-                     <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><UploadCloud size={18} /> Arquivos Digitais (Exportação)</h4>
-                     <div className="space-y-3">
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                           <h5 className="font-bold text-slate-800 text-sm">Tribunal de Contas (TCE)</h5>
-                           <p className="text-xs text-slate-500 mb-3">Remessa mensal de dados contábeis.</p>
-                           <button className="px-3 py-1 bg-slate-800 text-white text-xs rounded hover:bg-slate-900">Gerar Remessa</button>
-                        </div>
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                           <h5 className="font-bold text-slate-800 text-sm">SICONFI / STN</h5>
-                           <p className="text-xs text-slate-500 mb-3">Matriz de Saldos Contábeis (MSC).</p>
-                           <button className="px-3 py-1 bg-slate-800 text-white text-xs rounded hover:bg-slate-900">Gerar MSC</button>
-                        </div>
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                           <h5 className="font-bold text-slate-800 text-sm">SIOPS / SIOPE</h5>
-                           <p className="text-xs text-slate-500 mb-3">Dados da Saúde e Educação.</p>
-                           <button className="px-3 py-1 bg-slate-800 text-white text-xs rounded hover:bg-slate-900">Exportar XML</button>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         )}
-      </div>
-    );
-  };
 
   const renderPlanningBudget = () => (
     <div className="animate-in fade-in duration-300">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-           <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
-             <ChevronLeft size={20} />
-           </button>
-           <div>
-             <h2 className="text-2xl font-bold text-slate-800">Planejamento e Orçamento</h2>
-             <p className="text-sm text-slate-500">PPA, LDO e LOA</p>
-           </div>
-        </div>
-        <div className="flex gap-2">
-           <select 
-              value={ppaVersion} 
-              onChange={(e) => setPpaVersion(e.target.value)}
-              className="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg p-2.5 focus:ring-blue-500 focus:border-blue-500"
-           >
-              <option>V1 - Proposta Inicial</option>
-              <option>V2 - Revisão Audiência Pública</option>
-              <option>V3 - Aprovado Câmara</option>
-           </select>
-           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2">
-              <Save size={16} /> Salvar Revisão
-           </button>
-        </div>
-      </div>
-
-      <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit">
-         {['dashboard', 'ppa', 'ldo', 'loa', 'audiencias'].map(tab => (
-            <button 
-               key={tab}
-               onClick={() => setPlanningTab(tab as any)}
-               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all uppercase ${
-                  planningTab === tab ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
-               }`}
-            >
-               {tab}
-            </button>
-         ))}
-      </div>
-
-      {planningTab === 'dashboard' && (
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             {/* Charts and KPIs for Planning */}
-             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 className="font-bold text-slate-800 mb-2">PPA 2022-2025</h3>
-                <div className="flex justify-between items-end mb-4">
-                   <span className="text-slate-500 text-sm">Execução Física</span>
-                   <span className="text-2xl font-bold text-green-600">68%</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                   <div className="bg-green-500 h-2 rounded-full" style={{width: '68%'}}></div>
-                </div>
+       <div className="flex items-center gap-2 mb-6">
+          <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+            <ChevronLeft size={20} />
+          </button>
+          <h2 className="text-2xl font-bold text-slate-800">Planejamento e Orçamento</h2>
+       </div>
+       <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm text-center">
+          <IconPieChart size={48} className="mx-auto text-emerald-600 mb-4" />
+          <h3 className="text-xl font-bold text-slate-800 mb-2">Painel de Planejamento (PPA, LDO, LOA)</h3>
+          <p className="text-slate-500 mb-6">Gestão orçamentária integrada.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+             <div className="p-4 border rounded-xl hover:bg-emerald-50 cursor-pointer transition-colors border-emerald-100">
+                <h4 className="font-bold text-emerald-800">PPA 2022-2025</h4>
+                <p className="text-sm text-emerald-600">Plano Plurianual vigente.</p>
              </div>
-             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 className="font-bold text-slate-800 mb-2">LOA 2024</h3>
-                <div className="flex justify-between items-end mb-4">
-                   <span className="text-slate-500 text-sm">Receita Prevista</span>
-                   <span className="text-2xl font-bold text-blue-600">R$ 150M</span>
-                </div>
-                <p className="text-xs text-slate-400">Atualizado em 10/05/2024</p>
+             <div className="p-4 border rounded-xl hover:bg-emerald-50 cursor-pointer transition-colors border-emerald-100">
+                <h4 className="font-bold text-emerald-800">LDO 2025</h4>
+                <p className="text-sm text-emerald-600">Lei de Diretrizes Orçamentárias em elaboração.</p>
              </div>
-             <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 className="font-bold text-slate-800 mb-2">Audiências Públicas</h3>
-                <div className="flex justify-between items-end mb-4">
-                   <span className="text-slate-500 text-sm">Próxima Data</span>
-                   <span className="text-xl font-bold text-amber-600">15/06</span>
-                </div>
-                <button className="text-sm text-blue-600 hover:underline">Ver Edital</button>
+             <div className="p-4 border rounded-xl hover:bg-emerald-50 cursor-pointer transition-colors border-emerald-100">
+                <h4 className="font-bold text-emerald-800">LOA 2024</h4>
+                <p className="text-sm text-emerald-600">Orçamento em execução.</p>
              </div>
-         </div>
-      )}
-
-      {planningTab === 'ppa' && (
-         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-             <h3 className="font-bold text-lg mb-4">Plano Plurianual - Programas de Governo</h3>
-             <div className="space-y-4">
-                {[
-                   {prog: 'Educação para Todos', meta: 'Construir 3 novas creches', status: 'Em andamento', progresso: 45},
-                   {prog: 'Saúde Humanizada', meta: 'Reforma do Hospital Municipal', status: 'Concluído', progresso: 100},
-                   {prog: 'Cidade Pavimentada', meta: '100km de asfalto novo', status: 'Atrasado', progresso: 20},
-                ].map((item, idx) => (
-                   <div key={idx} className="border border-slate-100 rounded-lg p-4 hover:bg-slate-50 transition-colors">
-                      <div className="flex justify-between mb-2">
-                         <h4 className="font-bold text-slate-700">{item.prog}</h4>
-                         <span className={`text-xs px-2 py-1 rounded font-bold ${item.status === 'Concluído' ? 'bg-green-100 text-green-700' : item.status === 'Atrasado' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {item.status}
-                         </span>
-                      </div>
-                      <p className="text-sm text-slate-500 mb-3">{item.meta}</p>
-                      <div className="flex items-center gap-4">
-                         <div className="flex-1 bg-slate-200 rounded-full h-2">
-                            <div className={`h-2 rounded-full ${item.status === 'Concluído' ? 'bg-green-500' : item.status === 'Atrasado' ? 'bg-red-500' : 'bg-blue-500'}`} style={{width: `${item.progresso}%`}}></div>
-                         </div>
-                         <span className="text-xs font-bold text-slate-600">{item.progresso}%</span>
-                      </div>
-                   </div>
-                ))}
-             </div>
-         </div>
-      )}
+          </div>
+       </div>
     </div>
   );
 
-  const renderGenericModule = (moduleName: string) => {
-    const config = getModuleConfig(moduleName);
-    
+  const renderPublicAccounting = () => (
+    <div className="animate-in fade-in duration-300">
+       <div className="flex items-center gap-2 mb-6">
+          <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+            <ChevronLeft size={20} />
+          </button>
+          <h2 className="text-2xl font-bold text-slate-800">Contabilidade Pública</h2>
+       </div>
+       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+             <div className="p-6 bg-slate-50 rounded-xl">
+                <p className="text-sm text-slate-500 mb-1">Receita Arrecadada</p>
+                <h3 className="text-2xl font-bold text-green-600">R$ 15.4M</h3>
+             </div>
+             <div className="p-6 bg-slate-50 rounded-xl">
+                <p className="text-sm text-slate-500 mb-1">Despesa Empenhada</p>
+                <h3 className="text-2xl font-bold text-orange-600">R$ 12.1M</h3>
+             </div>
+             <div className="p-6 bg-slate-50 rounded-xl">
+                <p className="text-sm text-slate-500 mb-1">Superávit/Déficit</p>
+                <h3 className="text-2xl font-bold text-blue-600">+ R$ 3.3M</h3>
+             </div>
+          </div>
+          <h3 className="font-bold text-slate-800 mb-4">Execução Orçamentária por Secretaria</h3>
+          <table className="w-full text-left text-sm">
+             <thead className="bg-slate-50 text-slate-600">
+                <tr>
+                   <th className="p-3">Unidade Gestora</th>
+                   <th className="p-3 text-right">Orçamento Inicial</th>
+                   <th className="p-3 text-right">Empenhado</th>
+                   <th className="p-3 text-right">Liquidado</th>
+                   <th className="p-3 text-right">Pago</th>
+                </tr>
+             </thead>
+             <tbody className="divide-y divide-slate-100">
+                {[
+                   { u: 'Secretaria de Saúde', o: '12.0M', e: '8.5M', l: '8.0M', p: '7.8M' },
+                   { u: 'Secretaria de Educação', o: '15.0M', e: '10.2M', l: '9.8M', p: '9.5M' },
+                   { u: 'Secretaria de Obras', o: '8.0M', e: '5.5M', l: '4.2M', p: '4.0M' },
+                ].map((row, i) => (
+                   <tr key={i} className="hover:bg-slate-50">
+                      <td className="p-3 font-medium">{row.u}</td>
+                      <td className="p-3 text-right">R$ {row.o}</td>
+                      <td className="p-3 text-right">R$ {row.e}</td>
+                      <td className="p-3 text-right">R$ {row.l}</td>
+                      <td className="p-3 text-right">R$ {row.p}</td>
+                   </tr>
+                ))}
+             </tbody>
+          </table>
+       </div>
+    </div>
+  );
+
+  const renderFleetManagement = () => {
+    const vehicles = [
+      { id: 'V001', plate: 'ABC-1234', model: 'Fiat Uno', type: 'Carro', status: 'Disponível', km: 45000, consumption: 'Normal', dept: 'Saúde' },
+      { id: 'V002', plate: 'XYZ-9876', model: 'Caminhão Pipa', type: 'Caminhão', status: 'Em Manutenção', km: 89000, consumption: 'Alto', dept: 'Obras' },
+      { id: 'V003', plate: 'DEF-5678', model: 'Ambulância UTI', type: 'Ambulância', status: 'Em Uso', km: 12000, consumption: 'Baixo', dept: 'Hospital' },
+    ];
+
+    const drivers = [
+      { name: 'João Silva', cnh: '12345678900', category: 'AD', expiry: '2025-10-10', points: 5, status: 'Regular' },
+      { name: 'Carlos Souza', cnh: '09876543211', category: 'B', expiry: '2023-12-01', points: 22, status: 'Irregular' },
+    ];
+
+    const fuelLogs = [
+      { id: 1, vehicle: 'ABC-1234', date: '2024-05-20', liters: 40, cost: 220.00, driver: 'João Silva' },
+      { id: 2, vehicle: 'DEF-5678', date: '2024-05-21', liters: 55, cost: 310.00, driver: 'Pedro Santos' },
+    ];
+
     return (
       <div className="animate-in fade-in duration-300">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="flex items-center gap-2">
              <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
                <ChevronLeft size={20} />
              </button>
              <div>
-               <h2 className="text-2xl font-bold text-slate-800">{moduleName}</h2>
-               <p className="text-sm text-slate-500">Visão Geral e Operações</p>
+               <h2 className="text-2xl font-bold text-slate-800">Gestão de Frotas</h2>
+               <p className="text-sm text-slate-500">Controle de veículos, motoristas e abastecimento</p>
              </div>
           </div>
           <div className="flex gap-2">
-             {config.actions.slice(0, 2).map((action, i) => (
-                <button key={i} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${i === 0 ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}>
-                   {action}
-                </button>
-             ))}
+             <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 flex items-center gap-2">
+                <Fuel size={16} /> Autorizar Abastecimento
+             </button>
+             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2">
+                <Navigation size={16} /> Nova Saída
+             </button>
           </div>
         </div>
 
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-           {config.kpis.map((kpi, idx) => (
-              <div key={idx} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                 <div className="flex justify-between items-start mb-2">
-                    <span className="text-slate-500 text-sm font-medium">{kpi.title}</span>
-                    <span className={`p-2 rounded-lg bg-${config.theme}-50 text-${config.theme}-600`}>{kpi.icon}</span>
-                 </div>
-                 <h3 className="text-3xl font-bold text-slate-800">{kpi.value}</h3>
-                 <p className={`text-xs font-medium mt-2 ${kpi.change.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
-                    {kpi.change} <span className="text-slate-400 font-normal">vs mês anterior</span>
-                 </p>
-              </div>
+        {/* Navigation */}
+        <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit overflow-x-auto max-w-full">
+           {[
+              { id: 'dashboard', label: 'Visão Geral' },
+              { id: 'veiculos', label: 'Veículos' },
+              { id: 'motoristas', label: 'Motoristas' },
+              { id: 'abastecimento', label: 'Abastecimento' },
+              { id: 'manutencao', label: 'Manutenção' },
+              { id: 'trafego', label: 'Tráfego/Portaria' },
+              { id: 'multas', label: 'Multas' }
+           ].map(tab => (
+              <button 
+                 key={tab.id}
+                 onClick={() => setFleetTab(tab.id as any)}
+                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap capitalize ${
+                    fleetTab === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                 }`}
+              >
+                 {tab.label}
+              </button>
            ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-           {/* Main Chart Area */}
-           <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="font-bold text-slate-800 mb-6">Desempenho Recente</h3>
-              <div className="h-80">
-                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={config.chartData}>
-                       <defs>
-                          <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                             <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                          </linearGradient>
-                       </defs>
-                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
-                       <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                       <Tooltip 
-                          contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} 
-                       />
-                       <Area type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                    </AreaChart>
-                 </ResponsiveContainer>
+        {/* Content */}
+        {fleetTab === 'dashboard' && (
+           <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                 <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Veículos Ativos</p>
+                    <h3 className="text-2xl font-bold text-blue-700 mt-1">45</h3>
+                    <p className="text-xs text-blue-600 mt-2 flex items-center gap-1"><Car size={12} /> 90% da frota</p>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-orange-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Em Manutenção</p>
+                    <h3 className="text-2xl font-bold text-orange-700 mt-1">5</h3>
+                    <p className="text-xs text-orange-600 mt-2">Oficina externa</p>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">CNH Vencida</p>
+                    <h3 className="text-2xl font-bold text-red-700 mt-1">2</h3>
+                    <p className="text-xs text-red-600 mt-2 flex items-center gap-1"><AlertTriangle size={12} /> Bloqueados</p>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-emerald-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Gasto Combustível (Mês)</p>
+                    <h3 className="text-2xl font-bold text-emerald-700 mt-1">R$ 45.2k</h3>
+                    <p className="text-xs text-emerald-600 mt-2">Média: R$ 5.50/L</p>
+                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-4">Alertas de Manutenção</h3>
+                    <div className="space-y-3">
+                       <div className="p-3 bg-red-50 border border-red-100 rounded-lg flex items-center gap-3">
+                          <Wrench size={20} className="text-red-600" />
+                          <div>
+                             <p className="text-sm font-bold text-slate-800">Caminhão Pipa (XYZ-9876)</p>
+                             <p className="text-xs text-slate-500">Troca de Óleo Atrasada (500km)</p>
+                          </div>
+                       </div>
+                       <div className="p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-center gap-3">
+                          <Gauge size={20} className="text-amber-600" />
+                          <div>
+                             <p className="text-sm font-bold text-slate-800">Fiat Uno (ABC-1234)</p>
+                             <p className="text-xs text-slate-500">Revisão Preventiva em 1000km</p>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-4">Próximos Vencimentos (IPVA/Licenciamento)</h3>
+                    <table className="w-full text-left text-sm">
+                       <thead className="bg-slate-50 text-slate-600">
+                          <tr>
+                             <th className="p-2">Veículo</th>
+                             <th className="p-2">Tipo</th>
+                             <th className="p-2">Vencimento</th>
+                          </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100">
+                          <tr>
+                             <td className="p-2">ABC-1234</td>
+                             <td className="p-2">Licenciamento</td>
+                             <td className="p-2 text-red-600 font-bold">15/06/2024</td>
+                          </tr>
+                          <tr>
+                             <td className="p-2">DEF-5678</td>
+                             <td className="p-2">Seguro</td>
+                             <td className="p-2 text-amber-600">20/07/2024</td>
+                          </tr>
+                       </tbody>
+                    </table>
+                 </div>
               </div>
            </div>
+        )}
 
-           {/* Quick Table */}
-           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <h3 className="font-bold text-slate-800 mb-4">Registros Recentes</h3>
-              <div className="overflow-x-auto">
-                 <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-slate-400 uppercase font-bold border-b border-slate-100">
+        {fleetTab === 'veiculos' && (
+           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex justify-between items-center mb-6">
+                 <h3 className="font-bold text-slate-800">Frota Municipal</h3>
+                 <div className="flex gap-2">
+                    <button className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded text-sm flex items-center gap-2">
+                       <Search size={14} /> Consultar FIPE
+                    </button>
+                    <button className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-blue-700">+ Veículo</button>
+                 </div>
+              </div>
+              <table className="w-full text-left text-sm">
+                 <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                    <tr>
+                       <th className="p-3">Placa/ID</th>
+                       <th className="p-3">Modelo</th>
+                       <th className="p-3">Departamento</th>
+                       <th className="p-3">KM Atual</th>
+                       <th className="p-3 text-center">Consumo</th>
+                       <th className="p-3 text-center">Status</th>
+                       <th className="p-3 text-right">Ações</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-slate-100">
+                    {vehicles.map((v, i) => (
+                       <tr key={i} className="hover:bg-slate-50">
+                          <td className="p-3 font-medium">{v.plate}</td>
+                          <td className="p-3">{v.model}</td>
+                          <td className="p-3 text-slate-500">{v.dept}</td>
+                          <td className="p-3 font-mono">{v.km.toLocaleString()}</td>
+                          <td className="p-3 text-center">
+                             <span className={`px-2 py-1 rounded text-xs font-bold ${v.consumption === 'Alto' ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'}`}>
+                                {v.consumption}
+                             </span>
+                          </td>
+                          <td className="p-3 text-center">
+                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                v.status === 'Disponível' ? 'bg-green-100 text-green-700' : 
+                                v.status === 'Em Manutenção' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                             }`}>
+                                {v.status}
+                             </span>
+                          </td>
+                          <td className="p-3 text-right flex justify-end gap-2">
+                             <button className="text-slate-500 hover:text-blue-600" title="Ver Detalhes"><Eye size={18} /></button>
+                             <button className="text-slate-500 hover:text-orange-600" title="Anexos"><Paperclip size={18} /></button>
+                          </td>
+                       </tr>
+                    ))}
+                 </tbody>
+              </table>
+           </div>
+        )}
+
+        {fleetTab === 'motoristas' && (
+           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <h3 className="font-bold text-slate-800 mb-4">Controle de Motoristas e CNH</h3>
+              <table className="w-full text-left text-sm">
+                 <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                    <tr>
+                       <th className="p-3">Nome</th>
+                       <th className="p-3">CNH</th>
+                       <th className="p-3 text-center">Categoria</th>
+                       <th className="p-3 text-center">Validade</th>
+                       <th className="p-3 text-center">Pontos</th>
+                       <th className="p-3 text-center">Status</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-slate-100">
+                    {drivers.map((d, i) => (
+                       <tr key={i} className="hover:bg-slate-50">
+                          <td className="p-3 font-medium">{d.name}</td>
+                          <td className="p-3 font-mono">{d.cnh}</td>
+                          <td className="p-3 text-center">{d.category}</td>
+                          <td className={`p-3 text-center font-bold ${new Date(d.expiry) < new Date() ? 'text-red-600' : 'text-slate-600'}`}>
+                             {d.expiry}
+                          </td>
+                          <td className={`p-3 text-center font-bold ${d.points >= 20 ? 'text-red-600' : 'text-green-600'}`}>
+                             {d.points}
+                          </td>
+                          <td className="p-3 text-center">
+                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${d.status === 'Regular' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {d.status}
+                             </span>
+                          </td>
+                       </tr>
+                    ))}
+                 </tbody>
+              </table>
+           </div>
+        )}
+
+        {fleetTab === 'abastecimento' && (
+           <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div className="bg-white p-6 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-slate-800 mb-4">Novo Abastecimento</h4>
+                    <div className="space-y-4">
+                       <select className="w-full border border-slate-300 rounded p-2 text-sm">
+                          <option>Selecione o Veículo...</option>
+                          {vehicles.map(v => <option key={v.id}>{v.plate} - {v.model}</option>)}
+                       </select>
+                       <div className="flex gap-4">
+                          <input type="number" placeholder="Litros" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                          <input type="text" placeholder="Valor Total (R$)" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                       </div>
+                       <div className="p-3 bg-blue-50 border border-blue-100 rounded text-xs text-blue-700">
+                          <p className="font-bold">Saldo Disponível (Licitação): R$ 12.500,00</p>
+                          <p>Fornecedor: Posto Central Ltda</p>
+                       </div>
+                       <button className="w-full bg-blue-600 text-white py-2 rounded font-medium hover:bg-blue-700">Gerar Autorização</button>
+                    </div>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-slate-200">
+                    <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-bold text-slate-800">Últimos Abastecimentos</h4>
+                        <button className="text-xs text-blue-600 hover:underline">Portal do Posto (Externo)</button>
+                    </div>
+                    <table className="w-full text-left text-xs">
+                       <thead className="text-slate-500">
+                          <tr>
+                             <th className="pb-2">Veículo</th>
+                             <th className="pb-2">Litros</th>
+                             <th className="pb-2 text-right">Valor</th>
+                          </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100">
+                          {fuelLogs.map(l => (
+                             <tr key={l.id}>
+                                <td className="py-2">{l.vehicle}</td>
+                                <td className="py-2">{l.liters} L</td>
+                                <td className="py-2 text-right">R$ {l.cost.toFixed(2)}</td>
+                             </tr>
+                          ))}
+                       </tbody>
+                    </table>
+                 </div>
+              </div>
+           </div>
+        )}
+
+        {fleetTab === 'trafego' && (
+           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><MapPin size={20} /> Controle de Portaria / Tráfego</h3>
+              <div className="flex flex-col md:flex-row gap-6">
+                 <div className="flex-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-green-700 mb-4 uppercase text-sm">Registrar Saída</h4>
+                    <div className="space-y-3">
+                       <input type="text" placeholder="Placa do Veículo" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                       <input type="text" placeholder="Motorista (Busca por nome/CNH)" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                       <input type="number" placeholder="KM Saída" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                       <input type="text" placeholder="Destino / Rota" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                       <button className="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">Confirmar Saída</button>
+                    </div>
+                 </div>
+                 <div className="flex-1 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-blue-700 mb-4 uppercase text-sm">Registrar Retorno</h4>
+                    <div className="space-y-3">
+                       <select className="w-full border border-slate-300 rounded p-2 text-sm">
+                          <option>Selecione Veículo em Trânsito...</option>
+                          <option>ABC-1234 (Saiu às 08:00)</option>
+                       </select>
+                       <input type="number" placeholder="KM Chegada" className="w-full border border-slate-300 rounded p-2 text-sm" />
+                       <textarea placeholder="Ocorrências / Observações" className="w-full border border-slate-300 rounded p-2 text-sm h-20"></textarea>
+                       <button className="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">Registrar Chegada</button>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderPatrimonyModule = () => {
+    const patrimonyAssets = [
+      { id: 'TB-001052', desc: 'Mesa Escritório em L', value: 450.00, location: 'Secretaria de Saúde', status: 'Ativo', conservation: 'Bom', purchaseDate: '10/02/2023' },
+      { id: 'TB-001053', desc: 'Cadeira Giratória Executiva', value: 380.00, location: 'Gabinete Prefeito', status: 'Ativo', conservation: 'Ótimo', purchaseDate: '15/03/2023' },
+      { id: 'TB-000800', desc: 'Computador Desktop Dell', value: 3200.00, location: 'Escola Municipal Central', status: 'Em Manutenção', conservation: 'Regular', purchaseDate: '20/05/2022' },
+      { id: 'TB-000500', desc: 'Armário de Aço', value: 200.00, location: 'Almoxarifado', status: 'Baixado', conservation: 'Ruim', purchaseDate: '10/01/2018' },
+    ];
+
+    const patrimonyMovements = [
+      { id: 'MOV-550', date: '25/05/2024', type: 'Transferência', asset: 'TB-001052', origin: 'Compras', dest: 'Saúde', user: 'Ana P.' },
+      { id: 'MOV-549', date: '20/05/2024', type: 'Depreciação', asset: 'Lote 05/24', origin: 'Mensal', dest: '-', user: 'Sistema' },
+    ];
+
+    return (
+      <div className="animate-in fade-in duration-300">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div className="flex items-center gap-2">
+             <button onClick={() => setSelectedModule(null)} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+               <ChevronLeft size={20} />
+             </button>
+             <div>
+               <h2 className="text-2xl font-bold text-slate-800">Gestão de Patrimônio</h2>
+               <p className="text-sm text-slate-500">Controle de bens móveis e imóveis (NBCASP)</p>
+             </div>
+          </div>
+          <div className="flex gap-2">
+             <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 flex items-center gap-2">
+                <Download size={16} /> Importar Empenho
+             </button>
+             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center gap-2">
+                <Plus size={16} /> Novo Bem
+             </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit overflow-x-auto max-w-full">
+           {[
+              { id: 'dashboard', label: 'Visão Geral' },
+              { id: 'bens', label: 'Bens Patrimoniais' },
+              { id: 'movimentacoes', label: 'Movimentações e Baixas' },
+              { id: 'inventario', label: 'Inventário e Comissões' },
+              { id: 'relatorios', label: 'Relatórios e Etiquetas' }
+           ].map(tab => (
+              <button 
+                 key={tab.id}
+                 onClick={() => setPatrimonyTab(tab.id as any)}
+                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap capitalize ${
+                    patrimonyTab === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                 }`}
+              >
+                 {tab.label}
+              </button>
+           ))}
+        </div>
+
+        {/* --- DASHBOARD TAB --- */}
+        {patrimonyTab === 'dashboard' && (
+           <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                 <div className="bg-white p-6 rounded-xl border border-blue-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Total de Bens Ativos</p>
+                    <h3 className="text-2xl font-bold text-blue-700 mt-1">15,420</h3>
+                    <p className="text-xs text-blue-600 mt-2 flex items-center gap-1"><Box size={12} /> Móveis e Imóveis</p>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-emerald-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Valor Contábil Atual</p>
+                    <h3 className="text-2xl font-bold text-emerald-700 mt-1">R$ 45.2M</h3>
+                    <p className="text-xs text-emerald-600 mt-2">Atualizado Depreciação</p>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-orange-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Bens em Transferência</p>
+                    <h3 className="text-2xl font-bold text-orange-700 mt-1">12</h3>
+                    <p className="text-xs text-orange-600 mt-2">Aguardando Aceite</p>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
+                    <p className="text-sm text-slate-500 font-medium">Valor Residual Atingido</p>
+                    <h3 className="text-2xl font-bold text-red-700 mt-1">340</h3>
+                    <p className="text-xs text-red-600 mt-2">Totalmente depreciados</p>
+                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-4">Evolução Patrimonial (Valor Líquido)</h3>
+                    <div className="h-64">
+                       <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={[
+                             {name: 'Jan', val: 44.5}, {name: 'Fev', val: 44.8}, {name: 'Mar', val: 45.0},
+                             {name: 'Abr', val: 45.1}, {name: 'Mai', val: 45.2},
+                          ]}>
+                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                             <XAxis dataKey="name" />
+                             <YAxis />
+                             <Tooltip formatter={(value) => `R$ ${value}M`} />
+                             <Area type="monotone" dataKey="val" stroke="#3b82f6" fill="#eff6ff" />
+                          </AreaChart>
+                       </ResponsiveContainer>
+                    </div>
+                 </div>
+                 
+                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 className="font-bold text-slate-800 mb-4">Status de Conservação</h3>
+                    <div className="h-64 flex items-center justify-center">
+                       <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                             <Pie data={[
+                                {name: 'Ótimo', value: 40},
+                                {name: 'Bom', value: 35},
+                                {name: 'Regular', value: 20},
+                                {name: 'Ruim/Inservível', value: 5},
+                             ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                                <Cell fill="#10b981" />
+                                <Cell fill="#3b82f6" />
+                                <Cell fill="#f59e0b" />
+                                <Cell fill="#ef4444" />
+                             </Pie>
+                             <Tooltip />
+                             <Legend />
+                          </PieChart>
+                       </ResponsiveContainer>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        )}
+
+        {/* --- BENS TAB --- */}
+        {patrimonyTab === 'bens' && (
+           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                 <h3 className="font-bold text-slate-800 text-lg">Cadastro de Bens</h3>
+                 <div className="flex gap-2 w-full md:w-auto">
+                    <div className="relative flex-1">
+                       <input type="text" placeholder="Buscar por Tombo, Descrição..." className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm" />
+                       <Search size={16} className="absolute left-3 top-2.5 text-slate-400" />
+                    </div>
+                    <button className="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600"><Filter size={18} /></button>
+                 </div>
+              </div>
+              
+              <table className="w-full text-left text-sm">
+                 <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                    <tr>
+                       <th className="p-3">Tombo</th>
+                       <th className="p-3">Descrição</th>
+                       <th className="p-3 text-right">Valor Histórico</th>
+                       <th className="p-3">Localização</th>
+                       <th className="p-3">Estado</th>
+                       <th className="p-3 text-center">Situação</th>
+                       <th className="p-3 text-right">Ações</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-slate-100">
+                    {patrimonyAssets.map((asset, i) => (
+                       <tr key={i} className="hover:bg-slate-50 group">
+                          <td className="p-3 font-mono font-bold text-slate-700">{asset.id}</td>
+                          <td className="p-3 font-medium text-slate-700">{asset.desc}</td>
+                          <td className="p-3 text-right">R$ {asset.value.toFixed(2)}</td>
+                          <td className="p-3 text-slate-600">{asset.location}</td>
+                          <td className="p-3 text-slate-600">{asset.conservation}</td>
+                          <td className="p-3 text-center">
+                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${asset.status === 'Ativo' ? 'bg-green-100 text-green-700' : asset.status === 'Baixado' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
+                                {asset.status}
+                             </span>
+                          </td>
+                          <td className="p-3 text-right flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <button className="text-slate-500 hover:text-blue-600" title="Editar"><Edit size={16} /></button>
+                             <button className="text-slate-500 hover:text-orange-600" title="Histórico"><History size={16} /></button>
+                             <button className="text-slate-500 hover:text-indigo-600" title="Etiqueta"><Tag size={16} /></button>
+                          </td>
+                       </tr>
+                    ))}
+                 </tbody>
+              </table>
+           </div>
+        )}
+
+        {/* --- MOVIMENTACOES TAB --- */}
+        {patrimonyTab === 'movimentacoes' && (
+           <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <div className="bg-white p-6 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><RefreshCw size={20} className="text-blue-600" /> Virada Mensal (Depreciação)</h4>
+                    <p className="text-sm text-slate-500 mb-4">Calcular depreciação automática de todos os bens ativos conforme NBCASP.</p>
+                    <button className="w-full py-2 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-100 border border-blue-200 mb-2">
+                       Executar Depreciação (Mês Atual)
+                    </button>
+                    <button className="w-full py-1 text-slate-400 text-xs hover:text-red-500 hover:underline">
+                       Estornar Mês Anterior
+                    </button>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><ArrowLeftRight size={20} className="text-orange-600" /> Transferência</h4>
+                    <p className="text-sm text-slate-500 mb-4">Mover bens entre departamentos, setores ou unidades gestoras.</p>
+                    <button className="w-full py-2 bg-orange-50 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-100 border border-orange-200">
+                       Nova Transferência
+                    </button>
+                 </div>
+                 <div className="bg-white p-6 rounded-xl border border-slate-200">
+                    <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Trash size={20} className="text-red-600" /> Baixa Patrimonial</h4>
+                    <p className="text-sm text-slate-500 mb-4">Registrar saída definitiva (leilão, roubo, inservível) e gerar termo.</p>
+                    <button className="w-full py-2 bg-red-50 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100 border border-red-200">
+                       Registrar Baixa
+                    </button>
+                 </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                 <h3 className="font-bold text-slate-800 mb-4">Histórico de Movimentações Recentes</h3>
+                 <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 text-slate-600">
                        <tr>
-                          <th className="py-2">{config.tableHeaders[0]}</th>
-                          <th className="py-2">{config.tableHeaders[4]}</th>
+                          <th className="p-3">Data</th>
+                          <th className="p-3">Tipo</th>
+                          <th className="p-3">Bem / Lote</th>
+                          <th className="p-3">Origem</th>
+                          <th className="p-3">Destino</th>
+                          <th className="p-3">Usuário</th>
+                          <th className="p-3 text-right">Doc</th>
                        </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
-                       {config.tableData.map((row, i) => (
-                          <tr key={i}>
-                             <td className="py-3">
-                                <p className="font-medium text-slate-700">{row.c1}</p>
-                                <p className="text-xs text-slate-500">{row.c2}</p>
-                             </td>
-                             <td className="py-3 text-right">
-                                <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs font-bold">{row.c5}</span>
+                    <tbody className="divide-y divide-slate-100">
+                       {patrimonyMovements.map((mov, i) => (
+                          <tr key={i} className="hover:bg-slate-50">
+                             <td className="p-3 text-slate-500">{mov.date}</td>
+                             <td className="p-3 font-medium text-slate-700">{mov.type}</td>
+                             <td className="p-3 text-blue-600 font-mono text-xs">{mov.asset}</td>
+                             <td className="p-3 text-slate-500">{mov.origin}</td>
+                             <td className="p-3 text-slate-500">{mov.dest}</td>
+                             <td className="p-3 text-slate-500">{mov.user}</td>
+                             <td className="p-3 text-right">
+                                <button className="text-slate-400 hover:text-blue-600"><FileText size={16} /></button>
                              </td>
                           </tr>
                        ))}
                     </tbody>
                  </table>
               </div>
-              <button className="w-full mt-4 text-center text-sm text-blue-600 font-medium hover:underline">Ver Todos</button>
            </div>
-        </div>
+        )}
+
+        {/* --- INVENTARIO TAB --- */}
+        {patrimonyTab === 'inventario' && (
+           <div className="space-y-6">
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2"><ClipboardCheck size={20} /> Inventários Físicos</h3>
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                       Abrir Novo Inventário
+                    </button>
+                 </div>
+                 
+                 <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg mb-6 flex justify-between items-center">
+                    <div>
+                       <h4 className="font-bold text-amber-800">Inventário Anual 2024 - Em Andamento</h4>
+                       <p className="text-sm text-amber-700">Iniciado em 01/05/2024 • Comissão: Portaria 092/24</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-xs text-amber-600 font-bold uppercase">Progresso</p>
+                       <p className="text-2xl font-bold text-amber-800">65%</p>
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="p-4 border rounded-xl">
+                       <h4 className="font-bold text-slate-700 mb-2">Comissões de Inventário</h4>
+                       <p className="text-sm text-slate-500 mb-4">Gerenciar membros e portarias de designação.</p>
+                       <button className="text-blue-600 text-sm hover:underline font-medium">Gerenciar Membros</button>
+                    </div>
+                    <div className="p-4 border rounded-xl">
+                       <h4 className="font-bold text-slate-700 mb-2">Divergências e Inconsistências</h4>
+                       <p className="text-sm text-slate-500 mb-4">Bens não localizados ou em setor incorreto.</p>
+                       <button className="text-red-600 text-sm hover:underline font-medium">Ver Relatório de Divergências (12)</button>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        )}
+
+        {/* --- RELATORIOS TAB --- */}
+        {patrimonyTab === 'relatorios' && (
+           <div className="bg-white p-8 rounded-xl border border-slate-200">
+              <h3 className="font-bold text-xl text-slate-800 mb-6">Central de Relatórios e Etiquetas</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div>
+                    <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Printer size={18} /> Relatórios Operacionais</h4>
+                    <div className="space-y-2">
+                       {['Listagem Geral por Setor', 'Termo de Responsabilidade (Carga)', 'Relatório de Depreciação Mensal', 'Bens Totalmente Depreciados', 'Relatório de Baixas no Período'].map((rep, i) => (
+                          <button key={i} className="w-full text-left p-3 border border-slate-100 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors text-sm text-slate-600 flex justify-between items-center group">
+                             {rep} <Download size={16} className="opacity-0 group-hover:opacity-100 text-blue-600 transition-opacity" />
+                          </button>
+                       ))}
+                    </div>
+                 </div>
+                 <div>
+                    <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2"><Tag size={18} /> Etiquetas Patrimoniais</h4>
+                    <div className="p-6 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                       <div className="w-full max-w-[200px] h-24 mx-auto bg-white border border-slate-300 rounded mb-4 flex flex-col items-center justify-center shadow-sm relative overflow-hidden">
+                          <div className="w-full bg-slate-800 h-2 absolute top-0"></div>
+                          <span className="text-[10px] font-bold mt-1 uppercase tracking-wider">Município de Exemplo</span>
+                          <div className="flex items-center gap-2 my-1">
+                             <div className="w-8 h-8 bg-black"></div> {/* Fake QR */}
+                             <div className="flex flex-col items-start">
+                                <span className="font-mono font-bold text-sm">TB-001052</span>
+                                <div className="h-2 w-16 bg-black mt-1"></div> {/* Fake Barcode */}
+                             </div>
+                          </div>
+                       </div>
+                       <p className="text-xs text-slate-500 mb-4">Modelo padrão com Código de Barras e QR Code</p>
+                       <div className="flex gap-2 justify-center">
+                          <button className="px-4 py-2 bg-slate-800 text-white text-sm rounded hover:bg-slate-900">Imprimir Sequência</button>
+                          <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm rounded hover:bg-slate-50">Configurar</button>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        )}
       </div>
     );
   };
@@ -2353,6 +2143,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
                      <th className="px-6 py-4">Usuário</th>
                      <th className="px-6 py-4">Departamento</th>
                      <th className="px-6 py-4">Perfil</th>
+                     <th className="px-6 py-4">Acessos</th>
                      <th className="px-6 py-4 text-center">Status</th>
                      <th className="px-6 py-4 text-right">Ações</th>
                   </tr>
@@ -2374,6 +2165,24 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
                         <td className="px-6 py-4 text-slate-600">{user.department}</td>
                         <td className="px-6 py-4">
                            <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs border border-slate-200">{user.role}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                           <div className="flex -space-x-2 overflow-hidden">
+                              {user.permissions && user.permissions.length > 0 ? (
+                                user.permissions.slice(0, 3).map((perm, idx) => (
+                                  <div key={idx} className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-slate-100 flex items-center justify-center text-[10px] text-slate-600 uppercase font-bold" title={perm}>
+                                    {perm.charAt(0)}
+                                  </div>
+                                ))
+                              ) : (
+                                <span className="text-xs text-slate-400">Sem acessos</span>
+                              )}
+                              {user.permissions && user.permissions.length > 3 && (
+                                <div className="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-slate-100 flex items-center justify-center text-[8px] text-slate-600 font-bold">
+                                  +{user.permissions.length - 3}
+                                </div>
+                              )}
+                           </div>
                         </td>
                         <td className="px-6 py-4 text-center">
                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.status === 'Ativo' ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-500'}`}>
@@ -3250,6 +3059,8 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
         selectedModule === 'Contabilidade Pública' ? renderPublicAccounting() :
         selectedModule === 'Recursos Humanos' ? renderHRManagement() :
         selectedModule === 'Compras e Licitações' ? renderPurchasingModule() :
+        selectedModule === 'Frotas' ? renderFleetManagement() :
+        selectedModule === 'Patrimônio' ? renderPatrimonyModule() :
         selectedModule === 'Gestão de Leitos' || selectedModule === 'Pronto Socorro' ? renderHospitalManagement() :
         renderGenericModule(selectedModule)
       ) : (
@@ -3469,6 +3280,60 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ onBack }) => {
                                  />
                                  <span>Inativo</span>
                               </label>
+                           </div>
+                        </div>
+
+                        {/* Permission Selection - Granular */}
+                        <div className="md:col-span-2 border rounded-xl overflow-hidden mt-2">
+                           <div className="bg-slate-100 p-3 border-b border-slate-200 font-medium text-slate-700 text-sm flex justify-between items-center">
+                              <span>Permissões de Acesso por Módulo</span>
+                              <span className="text-xs text-slate-500 bg-white px-2 py-1 rounded border">
+                                 {tempUser.permissions?.length || 0} módulos selecionados
+                              </span>
+                           </div>
+                           <div className="h-64 overflow-y-auto p-4 bg-slate-50 space-y-6">
+                              {categories.map(cat => {
+                                 const catModules = moduleMap[cat.id] || [];
+                                 const allModuleNames = catModules.map(m => m.name);
+                                 const selectedCount = catModules.filter(m => tempUser.permissions?.includes(m.name)).length;
+                                 const allSelected = catModules.length > 0 && selectedCount === catModules.length;
+                                 const someSelected = selectedCount > 0 && selectedCount < catModules.length;
+
+                                 return (
+                                    <div key={cat.id} className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
+                                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-100">
+                                          <div className="relative flex items-center">
+                                             <input 
+                                                type="checkbox" 
+                                                className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                                checked={allSelected}
+                                                ref={input => {
+                                                   if (input) input.indeterminate = someSelected;
+                                                }}
+                                                onChange={() => handleToggleCategory(catModules)}
+                                             />
+                                          </div>
+                                          <span className="font-bold text-slate-700 text-sm flex items-center gap-2">
+                                             <span className="text-slate-400">{cat.icon}</span>
+                                             {cat.label}
+                                          </span>
+                                       </div>
+                                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-6">
+                                          {catModules.map((mod: any) => (
+                                             <label key={mod.name} className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer hover:text-blue-600 transition-colors">
+                                                <input 
+                                                   type="checkbox" 
+                                                   className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                                   checked={tempUser.permissions?.includes(mod.name) || false}
+                                                   onChange={() => handleTogglePermission(mod.name)}
+                                                />
+                                                {mod.name}
+                                             </label>
+                                          ))}
+                                       </div>
+                                    </div>
+                                 )
+                              })}
                            </div>
                         </div>
                      </div>
